@@ -36,7 +36,7 @@ Clone this repository,
 
 `$ git clone https://github.com/LienFinance/lien-zinc-RD.git`
 
-and make the contract initializing data in data/input.json 
+and initialize contract with this data in data/input.json 
 
 `
 "arguments": { "new": { "_deployer":"your address", "_strikePrice":"600" },
