@@ -42,6 +42,7 @@ and make the contract initializing data in data/input.json
 `
 
 then deploy a contract
+
 `
 $ zargo publish --instance default --network rinkeby
 `
@@ -65,12 +66,15 @@ with this argument at data/input.json (decimal 8)
 `
 
 ## (4)
+
 Query command can get the storage of contract
+
 Check the balance of your LBT/SBT
 
 `$ zargo query --address $CA --network rinkeby`
 
 ## (5)
+
 You can create a LBT sell order with flag=true, and a LBT buy order with flag=false
 
 `
@@ -84,11 +88,13 @@ Swap with this command
 `$ zargo call --method lbtPerSbt --address $CA --network rinkeby`
 
 ### (6)
+
 You can redeem your LBT with this command. Ether amount is always shown in E18.
 
 `$ zargo call --method exchangeLBT2Ether --address $CA --network rinkeby`
 
 ### [IMPORTANT]
+
 If you encounter these errors, the Zinc demo server is not available (offline).
 
 503 Service Temporarily Unavailable /
