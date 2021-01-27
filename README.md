@@ -31,6 +31,7 @@ Make sure that $PATH includes the path to where the files were extracted.
 When you use "zargo call" method, make sure you input the correct data to data/input. The, "msg" field and "arguments":"[method you use]" field are  required to be entered each time.
 
 ## (3)
+
 Clone this repository,
 
 `$ git clone https://github.com/LienFinance/lien-zinc-RD.git`
@@ -67,7 +68,7 @@ with this argument at data/input.json (decimal 8)
 
 ## (4)
 
-Query command can get the storage of contract
+Query command can get the all the data stored in a contract
 
 Check the balance of your LBT/SBT
 
