@@ -68,7 +68,7 @@ with this argument at data/input.json (decimal 8)
 
 ## (4)
 
-Query command can get the all the data stored in a contract
+The query command can get all the data stored in a contract, including its balance.
 
 Check the balance of your LBT/SBT
 
