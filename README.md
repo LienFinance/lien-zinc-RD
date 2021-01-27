@@ -93,3 +93,12 @@ swap with this command
 you can redeem your lbt with this command.
 
 `$ zargo call --method exchangeLBT2Ether  --address $CA  --network rinkeby`
+
+
+### [IMPORTANT]
+
+if you encount these error, demo server is not available. 
+
+503 Service Temporarily Unavailable
+
+502 Bad Gateway
