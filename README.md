@@ -91,6 +91,7 @@ swap with this command
 ## (6) 
 
 you can redeem your lbt with this command.
+Ether amount is always shown in E18.
 
 `$ zargo call --method exchangeLBT2Ether  --address $CA  --network rinkeby`
 
