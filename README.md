@@ -97,8 +97,7 @@ you can redeem your lbt with this command.
 
 ### [IMPORTANT]
 
-if you encount these error, demo server is not available. 
+If you encount these errors, the zinc demo server is not available. 
 
 503 Service Temporarily Unavailable
-
 502 Bad Gateway
