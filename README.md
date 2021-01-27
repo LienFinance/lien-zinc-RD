@@ -2,7 +2,7 @@
 Testing Lien's basic LBT vs SBT DEX PoC
 [WARNING] a new set of address and private key is required
 
-(1)
+## (1)
 
 have the faucet of rinkeby testnet
 Rinkeby Fauset https://faucet.rinkeby.io/
@@ -13,7 +13,7 @@ Zksync https://wallet.zksync.io/account
 reference: 
 https://zinc.zksync.io/07-smart-contracts/04-troubleshooting.html?highlight=account#unlocking-a-zksync-account
 
-(2)
+## (2)
 
 install and enable zinc command and zargo command
 
@@ -27,13 +27,13 @@ zinc-0.2.1-macos.zip
 
 make sure $PATH includes their path. 
 
-[IMPORTANT]
+### [IMPORTANT]
 
 When you use "zargo call" method, make sure you inputted correct data to data/input.
 Especially, "msg" field and "arguments":"[method you use]" field are required to input everytime.
 
 
-(3)
+## (3)
 
 clone this repository,
 
@@ -69,7 +69,7 @@ with this arugument at data/input.json (decimal 8)
 "setLbtPerSbt":{"_LbtPerSbtE8":"200000000"},
 `
 
-(4) 
+## (4) 
 
 query command can get the storage of contract
 
@@ -77,7 +77,7 @@ check the balance of LBT/SBT
 
 `$ zargo query  --address $CA  --network rinkeby`
 
-(5)
+## (5)
 
 you can creat a LBT sell order with flag=true, and a LBT buy order with flag=false
 
@@ -88,7 +88,7 @@ you can creat a LBT sell order with flag=true, and a LBT buy order with flag=fal
 swap with this command 
 `$ zargo call --method lbtPerSbt  --address $CA  --network rinkeby`
 
-(6) 
+## (6) 
 
 you can redeem your lbt with this command.
 
