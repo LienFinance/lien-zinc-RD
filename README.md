@@ -7,7 +7,7 @@ Testing Lien's basic LBT vs SBT DEX PoC
  a new set of address and private key is required
 
 ## (1)
-Obtain test ETH from the Rrinkeby testnet 
+Obtain test ETH from the Rinkeby testnet 
 
 Rinkeby Fauset: https://faucet.rinkeby.io/
 
@@ -96,7 +96,7 @@ You can redeem your LBT with this command. Ether amount is always shown in E18.
 
 ### [IMPORTANT]
 
-If you encounter these errors, the Zinc demo server is not available (offline).
+If you encounter these errors, the Zinc demo server is not available.
 
 503 Service Temporarily Unavailable /
 502 Bad Gateway
