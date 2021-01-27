@@ -1,0 +1,216 @@
+
+//!
+//! The 'lienzinc' contract entry.
+//!
+
+use std::collections::MTreeMap;
+pub type Address = u160;
+
+contract Lienzinc {
+
+    pub host: u160;
+    pub strikePriceE8: u160;
+    pub liquidatePriceE8: u160;
+    pub currentLbtPerSbtE8: u160;
+    pub sbtBalance: MTreeMap<Address,u160>;
+    pub lbtBalance: MTreeMap<Address,u160>;
+    pub sbtSellAmount: MTreeMap<Address,u160>;
+    pub lbtSellAmount: MTreeMap<Address,u160>;
+
+    pub fn new(_deployer: u160, _strikePrice: u160) -> Self {
+        Self {
+            host: _deployer,
+            strikePriceE8: _strikePrice,
+            liquidatePriceE8: 0 as u160,
+            currentLbtPerSbtE8: 0 as u160
+        }
+    }
+
+    pub fn setLiquidatePrice(mut self,_liquidatePrice: u160){
+        require(self.liquidatePriceE8==0,"price is already set");
+        require(self.host==zksync::msg.sender,"authorization required");
+        self.liquidatePriceE8 = _liquidatePrice;
+    }
+
+    pub fn setLbtPerSbt(mut self,_LbtPerSbtE8: u160){
+        require(self.host==zksync::msg.sender,"authorization required");
+        self.currentLbtPerSbtE8 = _LbtPerSbtE8;
+    }
+
+    pub fn mint(mut self){
+
+        let _toAddress = zksync::msg.sender;
+        let _amount = zksync::msg.amount as u160;
+        require(zksync::msg.amount > 0,"zksync's fee shoule be zero");
+        require(zksync::msg.token_address==0,"Ether address 0x0 required");
+        require(
+            zksync::msg.recipient == self.address,
+            "Transaction recipient is not the contract",
+        );
+
+
+        let (_lbtBalance, _exists) = self.lbtBalance.get( _toAddress);
+        let (_sbtBalance, _exists2) = self.sbtBalance.get( _toAddress);
+
+        let mut _toLBTBalance:u160 = 0;
+        if(_exists){
+            _toLBTBalance = _lbtBalance;
+        }
+
+        let mut _toSBTBalance:u160 = 0;
+        if(_exists2){
+            _toSBTBalance = _sbtBalance;
+        }
+
+        self.lbtBalance.remove( _toAddress);
+        self.lbtBalance.insert(_toAddress,_toLBTBalance+_amount);
+
+        self.sbtBalance.remove( _toAddress);
+        self.sbtBalance.insert(_toAddress,_toSBTBalance+_amount);
+
+    }
+
+    pub fn sbtTransfer(mut self,_amount: u160, _fromAddress: Address, _toAddress: Address) {
+
+        require(_fromAddress == zksync::msg.sender,"token ownership required");
+        self._sbtTransfer(_amount, _fromAddress, _toAddress);
+    }
+
+    pub fn lbtTransfer(mut self, _amount: u160, _fromAddress: Address, _toAddress: Address) {
+
+        require(_fromAddress == zksync::msg.sender,"token ownership required");
+        self._lbtTransfer(_amount, _fromAddress, _toAddress);
+    }
+
+    fn _sbtTransfer(mut self,_amount: u160, _fromAddress: Address, _toAddress: Address) {
+
+        require( _fromAddress!=_toAddress,"same address forbidden");
+
+        let (_sbtBalance, _exists) = self.sbtBalance.get( _fromAddress);
+        let (_sbtBalance2, _junk) = self.sbtBalance.get( _toAddress);
+        let mut _toBalance:u160 = 0;
+        if(_junk){
+            _toBalance = _sbtBalance2;
+        }
+
+        require(_exists,"token does not exist");
+        require(_sbtBalance > _amount,"token does not exist");
+        require(zksync::msg.recipient == _toAddress,"deployer");
+        require(zksync::msg.amount == 0,"zksync's fee shoule be zero");
+
+        self.sbtBalance.remove( _fromAddress);
+        self.sbtBalance.insert(_fromAddress,_sbtBalance-_amount);
+
+        self.sbtBalance.remove( _toAddress);
+        self.sbtBalance.insert(_toAddress,_toBalance+_amount);
+    }
+
+    fn _lbtTransfer(mut self,_amount: u160, _fromAddress: Address, _toAddress: Address) {
+
+        require( _fromAddress!=_toAddress,"same address forbidden");
+
+        let (_lbtBalance, _exists) = self.lbtBalance.get( _fromAddress);
+        let (_lbtBalance2, _junk) = self.lbtBalance.get( _toAddress);
+        let mut _toBalance:u160 = 0;
+        if(_junk){
+            _toBalance = _lbtBalance2;
+        }
+
+        require(_exists,"token does not exist");
+        require(_lbtBalance > _amount,"token does not exist");
+        require(_fromAddress == zksync::msg.sender,"token ownership required");
+        require(zksync::msg.recipient == _toAddress,"deployer");
+        require(zksync::msg.amount == 0,"zksync's fee shoule be zero");
+
+        self.lbtBalance.remove( _fromAddress);
+        self.lbtBalance.insert(_fromAddress,_lbtBalance-_amount);
+
+        self.lbtBalance.remove( _toAddress);
+        self.lbtBalance.insert(_toAddress,_toBalance+_amount);
+    }
+
+    pub fn lbtPerSbt(mut self,  SBTAddress: Address, LBTAddress: Address){
+
+        let (_sbtSellAmount, _exists) = self.sbtSellAmount.get(SBTAddress);
+        let (_lbtSellAmount, _exists2) = self.lbtSellAmount.get(LBTAddress);
+
+        require(_exists && _exists2, "sell amount not existed");
+        let sbtMax = self.currentLbtPerSbtE8 * _lbtSellAmount /100000000;
+        let mut sbtToSell = 0 as u160;
+        let mut lbtToSell = 0 as u160;
+        if(_sbtSellAmount>sbtMax){
+            sbtToSell = sbtMax;
+            lbtToSell = _lbtSellAmount;
+            self.sbtSellAmount.remove(SBTAddress);
+            self.lbtSellAmount.remove(LBTAddress);
+            self.sbtSellAmount.insert(SBTAddress,_sbtSellAmount-sbtMax);
+        }
+        if(_sbtSellAmount<=sbtMax){
+            sbtToSell = _sbtSellAmount;
+            lbtToSell = _sbtSellAmount*100000000/self.currentLbtPerSbtE8;
+            self.sbtSellAmount.remove(SBTAddress);
+            self.lbtSellAmount.remove(LBTAddress);
+            self.lbtSellAmount.insert(LBTAddress,_lbtSellAmount-lbtToSell);
+        }
+
+        self._sbtTransfer(sbtToSell, SBTAddress, LBTAddress);
+        self._lbtTransfer(lbtToSell, LBTAddress, SBTAddress);
+
+    }
+
+    pub fn orderDOTC(mut self, _amount: u160, flag: bool){
+        if(flag){
+            self.sbtSellAmount.insert(zksync::msg.sender,_amount);
+        }else{
+            self.lbtSellAmount.insert(zksync::msg.sender,_amount);
+        }
+    }
+
+    pub fn removeOrder(mut self, _address: Address, flag: bool){
+
+        if(_address>0){
+            require(self.host==zksync::msg.sender,"authorization required");
+            if(flag){
+                self.sbtSellAmount.remove(_address);
+            }else{
+                self.lbtSellAmount.remove(_address);
+            }
+        }else{
+            if(flag){
+                self.sbtSellAmount.remove(zksync::msg.sender);
+            }else{
+                self.lbtSellAmount.remove(zksync::msg.sender);
+            }
+        }
+    }
+
+    pub fn exchangeSBT2Ether(mut self){
+        let (_sbtBalance, _exists) = self.sbtBalance.get(zksync::msg.sender);
+        require(self.liquidatePriceE8>0,"This bond has not expired");
+        require(_exists,"SBT balance not found");
+        self.sbtBalance.remove(zksync::msg.sender);
+        let _amount = _sbtBalance * self.strikePriceE8 /self.liquidatePriceE8;
+        zksync::transfer(
+            zksync::msg.sender,
+            0x0,
+            _amount,
+        );     
+    }
+
+    pub fn exchangeLBT2Ether(mut self){
+        let (_lbtBalance, _exists) = self.lbtBalance.get(zksync::msg.sender);
+        require(self.liquidatePriceE8>0,"This bond has not expired");
+        require(_exists,"LBT balance not found");
+        self.lbtBalance.remove(zksync::msg.sender);
+        let mut _amount = 0 as u160;
+        if(self.strikePriceE8<self.liquidatePriceE8){
+            _amount = _lbtBalance * (self.liquidatePriceE8-self.strikePriceE8) /self.liquidatePriceE8;
+        }
+        zksync::transfer(
+            zksync::msg.sender,
+            0x0,
+            _amount,
+        );     
+    }
+
+}
