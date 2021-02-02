@@ -4,7 +4,7 @@ Testing Lien's basic LBT vs SBT DEX PoC
 
 [WARNING] 
 
- a new set of address and private key is required
+ a new set of address and private key is required. A private key can be set in "data/private_key"
 
 ## (1)
 Obtain test ETH from the Rinkeby testnet 
